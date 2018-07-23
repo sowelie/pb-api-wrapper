@@ -56,11 +56,13 @@
 
                         // debounce the key presses
                         timeout = setTimeout(() => {
+                            resultsContainer.innerHTML = 'Loading...';
+
                             // call the APIs
                             wrapper.getResults(addressInput.value, countryInput.value).then((results) => {
                                 resultsContainer.innerHTML = JSON.stringify(results, null, 4);
                             });
-                        }, 500);
+                        }, 250);
                     });
                 });
             }
@@ -76,7 +78,7 @@
 
             <div class="row" id="main" style="display: none">
                 <div class="col-md-6">
-                    <input class="form-control" placeholder="Address" id="address" value="10 gio court, concord, nh" />
+                    <input class="form-control" placeholder="Address" id="address" value="" />
                     <input class="form-control" placeholder="Country ISO Code" id="country" value="USA" maxlength="3" />
                 </div>
                 <div class="col-md-6" style="display: flex; overflow: auto;">
