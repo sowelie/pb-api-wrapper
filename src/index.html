@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>PB API Demo</title>
+        <link rel="stylesheet" href="css/bootstrap.css" />
+        <style type="text/css">
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container-fluid {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .row {
+                flex-grow: 1;
+            }
+        </style>
+        <script type="module">
+            import { ApiWrapper } from './api-wrapper.js';
+
+            // get the key and secret
+            const queryIndex = window.location.href.indexOf('?');
+
+            if (queryIndex >= 0) {
+                const query = window.location.href.substring(queryIndex + 1).split('&').reduce((prev, current) => {
+                    const pieces = current.split('=');
+                    
+                    prev[pieces[0]] = pieces[1];
+
+                    return prev;
+                }, {});
+
+                console.log(query);
+
+                const wrapper = new ApiWrapper();
+                wrapper.getAuthToken(query.key, query.secret).then(() => {
+                    // show the inputs
+                    document.getElementById('main').style.display = 'flex';
+                    document.getElementById('loading').style.display = 'none';
+
+
+                    let timeout = null;
+
+                    const addressInput = document.getElementById('address');
+                    const countryInput = document.getElementById('country');
+                    const resultsContainer = document.getElementById('results');
+
+                    addressInput.addEventListener('keyup', () => {
+                        clearTimeout(timeout);
+
+                        // debounce the key presses
+                        timeout = setTimeout(() => {
+                            // call the APIs
+                            wrapper.getResults(addressInput.value, countryInput.value).then((results) => {
+                                resultsContainer.innerHTML = JSON.stringify(results, null, 4);
+                            });
+                        }, 500);
+                    });
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <h1>PB API Demo</h1>
+            <div id="loading">
+                <h2>Loading...</h2>
+                <h3>Make sure you entered the key and secret into the query string</h3>
+            </div>
+
+            <div class="row" id="main" style="display: none">
+                <div class="col-md-6">
+                    <input class="form-control" placeholder="Address" id="address" value="10 gio court, concord, nh" />
+                    <input class="form-control" placeholder="Country ISO Code" id="country" value="USA" maxlength="3" />
+                </div>
+                <div class="col-md-6" style="display: flex; overflow: auto;">
+                    <pre id="results"></pre>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
